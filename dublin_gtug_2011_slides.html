@@ -1,0 +1,109 @@
+
+<!-- saved from url=(0056)http://localhost/~ilmari/dublin_gtug_2011_slides.html#25 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>Presentation</title>
+    <link rel="stylesheet" type="text/css" href="./dublin_gtug_2011_slides_files/slides.css">
+    <script type="text/javascript" src="./dublin_gtug_2011_slides_files/matrix.js"></script>
+    <script type="text/javascript" src="./dublin_gtug_2011_slides_files/util.js"></script>
+    <script type="text/javascript" src="./dublin_gtug_2011_slides_files/gl_util.js"></script>
+    <script type="text/javascript" src="./dublin_gtug_2011_slides_files/scenegraph.js"></script>
+    <script type="text/javascript" src="./dublin_gtug_2011_slides_files/scene_util.js"></script>
+    <script type="text/javascript" src="./dublin_gtug_2011_slides_files/bin_loader.js"></script>
+    <script type="text/javascript" src="./dublin_gtug_2011_slides_files/slides.js"></script>
+  </head>
+  <body style="overflow-x: hidden; overflow-y: hidden; ">
+    <button id="editorToggle" style="right: 520px; ">Edit</button><canvas id="webgl-slides-canvas" width="916" height="762" tabindex="-1" style="position: absolute; top: 0px; left: 0px; "></canvas><div style="position: fixed; right: 0px; top: 0px; bottom: 8px; " id="slides-editor"><div style="position: absolute; right: 0px; top: 0px; bottom: 32px; width: 510px; overflow-x: auto; overflow-y: auto; "><div><textarea style="height: 104px; ">H1 
+H2 Sprucing up your images with HTML5
+H2 (and an intro to HTML5)
+H3 Ilmari Heikkinen
+P Google Chrome Developer Relations
+P ilmari@google.com</textarea></div><div><textarea style="height: 104px; ">H1 Who are you?
+H2 Ilmari Heikkinen
+H2 Dude who makes graphics demos
+P And writes articles about them
+P And gives the occasional talk
+P And helps third-party devs</textarea></div><div><textarea style="height: 72px; ">H1 Agenda
+# Talk a bit about HTML5
+# Show off the power of &lt;canvas&gt;
+H2 </textarea></div><div><textarea style="height: 56px; ">H1 HTML5?
+H2 What is HTML5?
+P Quite a few things actually.</textarea></div><div><textarea style="height: 56px; ">H1 Brand
+IMG ./dublin_gtug_2011_slides_files/HTML5_Badge_512.png
+H2 </textarea></div><div><textarea style="height: 56px; ">H1 HTML5
+H2 Buzzword
+P All the new browser features</textarea></div><div><textarea style="height: 72px; ">H1 HTML5
+H2 W3C Specification
+P And a WHATWG Specification
+P Think STABLE and HEAD</textarea></div><div><textarea style="height: 56px; ">H1 Jump!
+H2 To html5rocks!
+H2 Demos!</textarea></div><div><textarea style="height: 40px; ">H1 In a nutshell
+H2 HTML5 makes web apps better</textarea></div><div><textarea style="height: 40px; ">H1 Onwards
+H2 To the second topic</textarea></div><div><textarea style="height: 88px; ">H1 Image filters
+H2 Filter images using &lt;canvas&gt;!
+H2 It's actually pretty easy!
+H2 And fun!
+P For some values of fun</textarea></div><div><textarea style="height: 72px; "></textarea></div><div><textarea style="height: 56px; "></textarea></div><div><textarea style="height: 88px; ">H1 How to do it
+# Get source ImageData
+# Create target ImageData
+# Fill target with filtered source
+# Draw target ImageData to canvas</textarea></div><div><textarea style="height: 104px; ">H1 getImageData
+&gt; ctx.drawImage(image, 0, 0);
+&gt; var src = ctx.getImageData(
+&gt;   0, 0, image.width, image.height
+&gt; );</textarea></div><div><textarea style="height: 56px; ">H1 createImageData
+&gt; var tgt = ctx.createImageData(width, height);
+H2 </textarea></div><div><textarea style="height: 200px; ">H1 Fill target
+&gt; for (var y=0; y&lt;tgt.height; y++) {
+&gt;  for (var x=0; x&lt;tgt.width; x++) {
+&gt;   var off = (y*tgt.width + x) * 4;
+&gt;   var px = filter(src, x, y);
+&gt;   tgt.pixels[off  ] = px.r;
+&gt;   tgt.pixels[off+1] = px.g;
+&gt;   tgt.pixels[off+2] = px.b;
+&gt;   tgt.pixels[off+3] = px.a;
+&gt;  }
+&gt; }
+H2 </textarea></div><div><textarea style="height: 40px; ">H1 Draw target
+&gt; ctx.putImageData(tgt, 0, 0);</textarea></div><div><textarea style="height: 56px; ">H1 Demo!
+H2 Fancy filters with &lt;canvas&gt;!
+H2 </textarea></div><div><textarea style="height: 72px; ">H1 Make it faster?
+H2 GPUs are built for this stuff.
+H2 WebGL lets us use GPUs.
+H2 Hmm...</textarea></div><div><textarea style="height: 88px; ">H1 WebGL how-to
+# Create a source texture from the image
+# Create a render target
+# Fill render target with filtered source
+# Draw render target to canvas</textarea></div><div><textarea style="height: 72px; ">H1 Sounds familiar
+H2 Same idea as with the 2D &lt;canvas&gt;
+P But a lot more boilerplate code.
+H2 </textarea></div><div><textarea style="height: 56px; ">H1 Boilerplate, ughh
+H2 Use a library.
+P Then you only have to write the filters.</textarea></div><div><textarea style="height: 104px; ">H1 magi.js
+&gt; var scene = new Magi.Scene(canvas);
+&gt; var img = new Magi.ImageQuad(image);
+&gt; scene.scene.appendChild(img);
+&gt; var filter = new Magi.FilterQuad(shaderSource);
+&gt; scene.postEffects.push(filter);</textarea></div><div><textarea style="height: 40px; ">H1 Demo!
+H2 WebGL filters!</textarea></div><div><textarea style="height: 40px; "></textarea></div><div><textarea style="height: 88px; ">H1 Conclusion
+H2 HTML5 improves web apps
+H2 Canvas: easy but slow
+H2 WebGL: easy but fast
+P (just... use a library)</textarea></div><div><textarea style="height: 104px; ">H1 Thank you
+H2 Ilmari Heikkinen
+P ilmari@google.com
+H2 
+P P.S. you can get this slideshow app from
+P github.com/kig/magi</textarea></div></div><div style="position: absolute; right: 0px; bottom: 0px; width: 510px; text-align: right; "><button>New slide</button><button>Party on!</button><button style="margin-right: 2px; ">Toggle all slides visible</button></div></div><div id="slides" style="display: none; ">
+      <div><h1></h1><h2>Sprucing up your images with HTML5</h2><h2>(and an intro to HTML5)</h2><h3>Ilmari Heikkinen</h3><p>Google Chrome Developer Relations</p><p>ilmari@google.com</p></div>
+      <div><h1>Who are you?</h1><h2>Ilmari Heikkinen</h2><h2>Dude who makes graphics demos</h2><p>And writes articles about them</p><p>And gives the occasional talk</p><p>And helps third-party devs</p></div>
+      <div><h1>Agenda</h1><ol><li>Talk a bit about HTML5</li><li>Show off the power of &lt;canvas&gt;</li></ol><h2></h2></div><div><h1>HTML5?</h1><h2>What is HTML5?</h2><p>Quite a few things actually.</p></div><div><h1>Brand</h1><img src="./dublin_gtug_2011_slides_files/HTML5_Badge_512.png"><h2></h2></div><div><h1>HTML5</h1><h2>Buzzword</h2><p>All the new browser features</p></div><div><h1>HTML5</h1><h2>W3C Specification</h2><p>And a WHATWG Specification</p><p>Think STABLE and HEAD</p></div><div><h1>Jump!</h1><h2>To html5rocks!</h2><h2>Demos!</h2></div><div><h1>In a nutshell</h1><h2>HTML5 makes web apps better</h2></div><div><h1>Onwards</h1><h2>To the second topic</h2></div><div><h1>Image filters</h1><h2>Filter images using &lt;canvas&gt;!</h2><h2></h2></div><div><h1>Image filters</h1><h2>It's actually pretty easy!</h2><h2></h2></div><div><h1>Image filters</h1><h2>And fun!</h2><p>For some values of fun</p></div><div><h1>How to do it</h1><ol><li>Get source ImageData</li><li>Create target ImageData</li><li>Fill target with filtered source</li><li>Draw target ImageData to canvas</li></ol></div><div><h1>getImageData</h1><pre>var ctx = canvas.getContext('2d');</pre><pre>ctx.drawImage(image, 0, 0);</pre><pre>var src = ctx.getImageData(</pre><pre>  0, 0, image.width, image.height</pre><pre>);</pre></div><div><h1>createImageData</h1><pre>var tgt = ctx.createImageData(width, height);</pre><h2></h2></div><div><h1>Fill target</h1><pre>for (var y=0; y&lt;tgt.height; y++) {</pre><pre> for (var x=0; x&lt;tgt.width; x++) {</pre><pre>  var off = (y*tgt.width + x) * 4;</pre><pre>  var px = filter(src, x, y);</pre><pre>  tgt.pixels[off  ] = px.r;</pre><pre>  tgt.pixels[off+1] = px.g;</pre><pre>  tgt.pixels[off+2] = px.b;</pre><pre>  tgt.pixels[off+3] = px.a;</pre><pre> }</pre><pre>}</pre><h2></h2></div><div><h1>Draw target</h1><pre>ctx.putImageData(tgt, 0, 0);</pre></div><div><h1>Demo!</h1><h2>Fancy filters with &lt;canvas&gt;!</h2><h2></h2></div><div><h1>Make it faster?</h1><h2>GPUs are built for this stuff.</h2><h2>WebGL lets us use GPUs.</h2><h2>Hmm...</h2></div><div><h1>WebGL how-to</h1><ol><li>Create a source texture from the image</li><li>Create a render target</li><li>Fill render target with filtered source</li><li>Draw render target to canvas</li></ol></div><div><h1>Sounds familiar</h1><h2>Same idea as with the 2D &lt;canvas&gt;</h2><p>But a lot more boilerplate code.</p><h2></h2></div><div><h1>Boilerplate, ughh</h1><h2>Use a library.</h2><p>Then you only have to write the filters.</p></div><div><h1>magi.js</h1><pre>var scene = new Magi.Scene(canvas);</pre><pre>var img = new Magi.ImageQuad(image);</pre><pre>scene.scene.appendChild(img);</pre><pre>var filter = new Magi.FilterQuad(shaderSource);</pre><pre>scene.postEffects.push(filter);</pre></div><div><h1>Demo!</h1><h2>WebGL filters!</h2></div><div><h1>Source</h1><h2>Let's see some filter code!</h2></div><div><h1>Conclusion</h1><h2>HTML5 improves web apps</h2><h2>Canvas: easy but slow</h2><h2>WebGL: easy but fast</h2><p>(just... use a library)</p></div><div><h1>Thank you</h1><h2>Ilmari Heikkinen</h2><p>ilmari@google.com</p><h2></h2><p>P.S. you can get this slideshow app from</p><p>github.com/kig/magi</p></div>
+    </div>
+    <script type="text/javascript">
+      App = new Slides(byId('slides'));
+    </script>
+	
+
+
+
+</body></html>

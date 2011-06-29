@@ -1,0 +1,223 @@
+
+<!-- saved from url=(0077)http://www.corp.google.com/~ilmari/no_crawl/visic/visic/tests/crystalGeo.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Video filters</title>
+  <style type="text/css">
+    #controls {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      z-index: 10;
+      padding: 0px;
+    }
+  </style>
+  <script type="text/javascript" src="./videoFilters_files/matrix.js"></script>
+  <script type="text/javascript" src="./videoFilters_files/util.js"></script>
+  <script type="text/javascript" src="./videoFilters_files/gl_util.js"></script>
+  <script type="text/javascript" src="./videoFilters_files/scenegraph.js"></script>
+  <script type="text/javascript" src="./videoFilters_files/scene_util.js"></script>
+  <script type="text/javascript" src="./videoFilters_files/filters.js"></script>
+  <script type="text/javascript">
+
+
+    window.addEventListener('load', function() {
+      var bgFrag = {type: "FRAGMENT_SHADER", text: (
+        "precision mediump float;"+
+        "uniform sampler2D Texture0;"+
+        "uniform float aspect;"+
+        "varying vec2 texCoord0;"+
+        "void main()"+
+        "{"+
+        "  float dx = (-0.5+texCoord0.s) * aspect;"+
+        "  float dy = (-0.5+texCoord0.t)*3.0 / aspect;"+
+        "  float d = pow(dx*dx+dy*dy, 0.44);"+
+        "  vec4 c = vec4(0.8,0.8,0.8,0.5);"+
+        "  gl_FragColor = c*(1.0-d)*c.a;"+
+        "}"
+      )};
+
+      var c = E.canvas(window.innerWidth, window.innerHeight);
+      window.addEventListener('resize', function() {
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+      }, false);
+      c.style.position = 'absolute';
+      c.style.top = c.style.left = '0px';
+      document.body.appendChild(c);
+      var display = new Magi.Scene(c);
+      display.useDefaultCameraControls();
+      display.bg = [0.3, 0.3, 0.3, 1];
+
+      var grad = new Magi.FilterQuad(bgFrag);
+      grad.material.floats.aspect = 4/3;
+      display.scene.appendChild(grad);
+      var ca = new Magi.ChromaticAberrationFilter();
+      ca.material.floats.radius = 0.018;
+      ca.material.floats.center[0] = 0.5;
+      ca.material.floats.center[1] = 0;
+      var convo = new Magi.FilterQuad(Magi.Convolution3x3Material.get());
+      convo.material.floats.Kernel = mat3.create([
+        -1, -1, -1,
+        -1,  9, -1,
+        -1, -1, -1
+      ]);
+      convo.material.floats.PixelSize = vec2.create(1/c.width, 1/c.height);
+      var glow = new Magi.RadialGlowFilter();
+      var grayscale = new Magi.FilterQuad(Magi.GrayscaleMaterial.get());
+      var threshold = new Magi.FilterQuad(Magi.TriToneMaterial.get());
+      threshold.material.floats.highThreshold = 0.65;
+      threshold.material.floats.lowThreshold = 0.43;
+      display.postEffects.push(grayscale);
+      display.postEffects.push(convo);
+      display.postEffects.push(threshold);
+      display.postEffects.push(glow);
+      display.postEffects.push(ca);
+
+      glow.display = false;
+      threshold.display = false;
+      convo.display = false;
+      ca.display = false;
+      grayscale.display = false;
+      var controls = DIV(
+        {
+          id: 'controls'
+        },
+        CHECKBOX({onchange: function(){ grayscale.display = this.checked; }}),
+        BUTTON("Toggle Grayscale", {
+          onclick:function(){ this.previousSibling.click();}}),
+        CHECKBOX({onchange: function(){ convo.display = this.checked; }}),
+        BUTTON("Toggle Convolution", {
+          onclick:function(){ this.previousSibling.click();}}),
+        CHECKBOX({onchange: function(){ threshold.display = this.checked; }}),
+        BUTTON("Toggle Tritone", {
+          onclick:function(){ this.previousSibling.click();}}),
+        BUTTON("Ireland!", {
+          onclick:function(){
+            threshold.material.floats.lowColor = vec4.create(0,0.6039,0.2862,1);
+            threshold.material.floats.midColor = vec4.create(1,1,1,1);
+            threshold.material.floats.highColor = vec4.create(1,0.4745,0,1);
+          }
+        }),
+        CHECKBOX({onchange: function(){ glow.display = this.checked; }}),
+        BUTTON("Toggle Radial Blur", {
+          onclick:function(){ this.previousSibling.click();}}),
+        CHECKBOX({onchange: function(){ ca.display = this.checked; }}),
+        BUTTON("Toggle Chromatic Aberration", {
+          onclick:function(){ this.previousSibling.click();}})
+      );
+      document.body.appendChild(controls);
+
+      var createCrystal = function() {
+        var cb = new Magi.Crystal();
+        cb.material = cb.material.copy(3, 0.33);
+        var fs = cb.material.floats;
+        vec4.setLeft(fs.MaterialDiffuse, [0.8,0.9, 1.0, 0.8]);
+        vec4.setLeft(fs.LightDiffuse, [1,1,0.5,1]);
+        vec4.setLeft(fs.LightSpecular, [0.5,1,1,1]);
+        vec4.setLeft(fs.LightAmbient, [0.3,0,0.2,1]);
+        cb.transparent = true;
+
+        var ncb = new Magi.Crystal(3, 0.28);
+        ncb.transparent = true;
+        ncb.material = cb.material.copy();
+        vec4.setLeft(ncb.material.floats.MaterialDiffuse, [1,0.95,0.8,0.7]);
+        var fs = ncb.material.floats;
+        vec4.setLeft(fs.LightDiffuse, [1,1,0.8,1]);
+        vec4.setLeft(fs.LightSpecular, [1,0.95,0.8,1]);
+        vec4.setLeft(fs.LightAmbient, [0.2,0.1,0.0,1]);
+        ncb.scaling[0] = 0.42;
+        ncb.scaling[1] = 0.62;
+        ncb.scaling[2] = 0.42;
+        ncb.blendFuncSrc = 'SRC_ALPHA';
+        ncb.blendFuncDst = 'ONE';
+        cb.appendChild(ncb);
+
+        var crystal = new Magi.Node();
+        var pos = new Magi.Node();
+        pos.appendChild(cb);
+        crystal.appendChild(pos);
+        crystal.outerCube = cb;
+        crystal.innerCube = ncb;
+        return crystal;
+      };
+
+      var createRing = function(r, spd) {
+
+        var crystals = [];
+        var node = new Magi.Node();
+
+        for (var i=0; i<10; i++) {
+          crystals.push(createCrystal());
+          node.appendChild(crystals.last());
+        }
+        node.addFrameListener(function(t,dt) {
+          var f = Math.PI*2 / crystals.length;
+          for (var i=0; i<crystals.length; i++) {
+            crystals[i].setAngle(i*f+t/5000*spd);
+            crystals[i].childNodes[0].setPosition(0, 0, 5);
+            crystals[i].childNodes[0].setAxis(1,0,0).setAngle(0.5);
+            crystals[i].outerCube.setAngle(-t/1000*spd);
+          }
+        });
+        return node;
+      }
+
+      var r1 = createRing(5, 1);
+      display.scene.appendChild(r1);
+      var r2 = createRing(5, 0.8).setScale(0.75).setY(-0.75);
+      display.scene.appendChild(r2);
+      var r3 = createRing(5, 0.6).setScale(0.5).setY(-1.5);
+      display.scene.appendChild(r3);
+
+
+      var rings = new Magi.Node();
+      vec3.set3(0.04, rings.scaling);
+      rings.setAngle(Math.PI).setAxis(1,0,0);
+      rings.position[0] = -0;
+      rings.position[1] = 5;
+      rings.counter = 0;
+      var rm = Magi.DefaultMaterial.get().copy();
+      rm.floats.MaterialDiffuse[3] = 0.7;
+      for (var i=0; i<16; i++) {
+        var ringSeg = new Magi.Ring(0.01+0.08*Math.random(), Math.PI*1.5);
+        vec3.set3(24+i*0.25+12*Math.random(), ringSeg.scaling);
+        vec3.set([0,i*10,0], ringSeg.position);
+        ringSeg.material = rm;
+        ringSeg.transparent = true;
+        ringSeg.makeRotate();
+        ringSeg.idx = i;
+        ringSeg.origY = i*10;
+        ringSeg.advance = -15+15*Math.random()+ringSeg.idx;
+        ringSeg.r = Math.random();
+        ringSeg.addFrameListener(function(t,dt) {
+          if (this.advance < -30) {
+            this.advance = -28+15*Math.random();
+            this.r = Math.random();
+          }
+          this.position[1] = this.origY - this.advance*10 - 200;
+          this.setScale(24 + this.r*this.r*(160-this.position[1]));
+          this.advance -= dt/60;
+        });
+        ringSeg.blendFuncSrc = 'ONE';
+        ringSeg.blendFuncDst = 'ONE';
+        ringSeg.makeRotate(0.5 + i*0.2 + Math.random());
+        rings.appendChild(ringSeg);
+      }
+      var ringSeg = new Magi.Ring(0, Math.PI*2);
+      ringSeg.setScale(24)
+      ringSeg.material = rm;
+      ringSeg.transparent = true;
+      ringSeg.blendFuncSrc = 'ONE';
+      ringSeg.blendFuncDst = 'ONE';
+      rings.appendChild(ringSeg);
+      rings.elapsed = 0;
+      display.scene.appendChild(rings);
+
+    }, false);
+  </script>
+</head>
+
+<body>
+
+
+<canvas id="canvas-uuid-0" width="1198" height="676" style="position: absolute; left: 0px; top: 0px; "></canvas></body></html>
