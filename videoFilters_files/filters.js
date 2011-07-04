@@ -162,6 +162,27 @@ Magi.ThresholdMaterial.setupMaterial = function(shader) {
 }
 
 
+Magi.PolarCoordMaterial = Object.clone(Magi.FilterQuadMaterial);
+Magi.PolarCoordMaterial.frag = {type:'FRAGMENT_SHADER', text: (
+  "precision highp float;"+
+  "uniform sampler2D Texture0;"+
+  "varying vec2 texCoord0;"+
+  "uniform vec2 PixelSize;"+
+  "void main()"+
+  "{"+
+  "  vec2 d = texCoord0 - vec2(0.5, 0.5);"+
+  "  vec2 tc = vec2(2.0*length(d), 0.5+atan(d.s, d.t)/(2.0*3.14159));"+
+  "  gl_FragColor = texture2D(Texture0, tc);"+
+  "}"
+)};
+Magi.ThresholdMaterial.setupMaterial = function(shader) {
+  var m = new Magi.Material(shader);
+  m.textures.Texture0 = null;
+  m.floats.PixelSize = vec2.create(1.0, 1.0);
+  return m;
+}
+
+
 Magi.Convolution3x3Material = Object.clone(Magi.FilterQuadMaterial);
 Magi.Convolution3x3Material.frag = {type:'FRAGMENT_SHADER', text: (
   "precision highp float;"+

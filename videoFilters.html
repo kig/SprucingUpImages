@@ -65,6 +65,7 @@
       var glow = new Magi.RadialGlowFilter();
       var grayscale = new Magi.FilterQuad(Magi.GrayscaleMaterial.get());
       var threshold = new Magi.FilterQuad(Magi.TriToneMaterial.get());
+      var pc = new Magi.FilterQuad(Magi.PolarCoordMaterial.get());
       threshold.material.floats.highThreshold = 0.65;
       threshold.material.floats.lowThreshold = 0.43;
       display.postEffects.push(grayscale);
@@ -72,12 +73,14 @@
       display.postEffects.push(threshold);
       display.postEffects.push(glow);
       display.postEffects.push(ca);
+      display.postEffects.push(pc);
 
       glow.display = false;
       threshold.display = false;
       convo.display = false;
       ca.display = false;
       grayscale.display = false;
+      var ireland = false;
       var controls = DIV(
         {
           id: 'controls'
@@ -93,9 +96,16 @@
           onclick:function(){ this.previousSibling.click();}}),
         BUTTON("Ireland!", {
           onclick:function(){
-            threshold.material.floats.lowColor = vec4.create(0,0.6039,0.2862,1);
-            threshold.material.floats.midColor = vec4.create(1,1,1,1);
-            threshold.material.floats.highColor = vec4.create(1,0.4745,0,1);
+            if (ireland) {
+              threshold.material.floats.lowColor = vec4.create(0,0,0,1);
+              threshold.material.floats.midColor = vec4.create(1,0,0,1);
+              threshold.material.floats.highColor = vec4.create(1,1,1,1);
+            } else {
+              threshold.material.floats.lowColor = vec4.create(0,0.6039,0.2862,1);
+              threshold.material.floats.midColor = vec4.create(1,1,1,1);
+              threshold.material.floats.highColor = vec4.create(1,0.4745,0,1);
+            }
+            ireland = !ireland;
           }
         }),
         CHECKBOX({onchange: function(){ glow.display = this.checked; }}),
@@ -103,6 +113,9 @@
           onclick:function(){ this.previousSibling.click();}}),
         CHECKBOX({onchange: function(){ ca.display = this.checked; }}),
         BUTTON("Toggle Chromatic Aberration", {
+          onclick:function(){ this.previousSibling.click();}}),
+        CHECKBOX({onchange: function(){ pc.display = this.checked; }}),
+        BUTTON("Toggle Polar Coords", {
           onclick:function(){ this.previousSibling.click();}})
       );
       document.body.appendChild(controls);
