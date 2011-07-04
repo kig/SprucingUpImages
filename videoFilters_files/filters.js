@@ -171,7 +171,8 @@ Magi.PolarCoordMaterial.frag = {type:'FRAGMENT_SHADER', text: (
   "void main()"+
   "{"+
   "  vec2 d = texCoord0 - vec2(0.5, 0.5);"+
-  "  vec2 tc = vec2(2.0*length(d), 0.5+atan(d.s, d.t)/(2.0*3.14159));"+
+  "  float angle = (1.0+atan(d.s, d.t)/3.14159);"+
+  "  vec2 tc = vec2(2.0*length(d), abs(mod(3.0*angle, 2.0)-1.0));"+
   "  gl_FragColor = texture2D(Texture0, tc);"+
   "}"
 )};
